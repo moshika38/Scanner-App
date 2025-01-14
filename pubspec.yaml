@@ -41,6 +41,9 @@ dependencies:
   cloud_firestore: ^5.6.1
   flutter_stripe: ^11.3.0
   google_sign_in: ^6.2.2
+  shared_preferences: ^2.3.5
+  pdf: ^3.11.1
+  google_mlkit_document_scanner: ^0.3.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0

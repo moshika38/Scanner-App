@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scanner/core/utils/colors.dart';
+import 'package:scanner/features/auth/services/user_auth_services.dart';
 import 'package:scanner/features/home/widget/upgrade_reminder.dart';
 
 class EndDrawer extends StatelessWidget {
@@ -85,6 +86,7 @@ class EndDrawer extends StatelessWidget {
               onTap: () {
                 // Add logout logic here
                 Navigator.pop(context);
+                UserAuthServices().logout(context);
               },
             ),
           ],

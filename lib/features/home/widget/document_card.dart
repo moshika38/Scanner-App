@@ -6,11 +6,15 @@ import 'package:scanner/features/widgets/page_route.dart';
 
 class DocumentCard extends StatelessWidget {
   final BuildContext context;
-  final int index;
+  final String name;
+  final String size;
+  final String path;
   const DocumentCard({
     super.key,
     required this.context,
-    required this.index,
+    required this.name,
+    required this.size,
+    required this.path,
   });
 
   @override
@@ -63,15 +67,17 @@ class DocumentCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Document_${index + 1}.pdf',
+                          name,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Scanned today at ${DateTime.now().hour}:${DateTime.now().minute}',
+                          size,
                           style: TextStyle(
                             color: AppColors.brown.withOpacity(0.7),
                           ),

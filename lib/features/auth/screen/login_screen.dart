@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scanner/core/utils/colors.dart';
+import 'package:scanner/features/auth/services/user_auth_services.dart';
 import 'package:scanner/features/auth/widget/login_btn.dart';
-import 'package:scanner/features/home/screen/home_screen.dart';
-import 'package:scanner/features/widgets/page_route.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -51,7 +50,8 @@ class LoginScreen extends StatelessWidget {
               // Google Sign In Button
               LoginBtn(
                 signInWithGoogle: () {
-                  AppPageRouteing.pushReplacement(context, HomeScreen());
+                  UserAuthServices().signInWithGoogle(context);
+                  // AppPageRouteing.pushReplacement(context, HomeScreen());
                 },
               ),
             ],

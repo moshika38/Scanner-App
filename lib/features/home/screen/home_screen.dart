@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:scanner/core/utils/colors.dart';
+import 'package:scanner/features/home/providers/document_provider.dart';
 import 'package:scanner/features/home/widget/action_btn.dart';
 import 'package:scanner/features/home/widget/document_card.dart';
 import 'package:scanner/features/home/widget/end_drawer.dart';
+import 'package:scanner/models/doc_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -60,7 +63,11 @@ class HomeScreen extends StatelessWidget {
                           context: context,
                           icon: Icons.camera_alt,
                           label: 'Scan Now',
-                          onTap: () {},
+                          onTap: () async {
+                            await context
+                                .read<DocumentProvider>()
+                                .scanDocument(context);
+                          },
                         ),
                       ],
                     ),
@@ -89,17 +96,33 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: 10,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: DocumentCard(
-                    context: context,
-                    index: index,
-                  ),
-                ),
+            Consumer<DocumentProvider>(
+              builder: (context, documentProvider, child) => FutureBuilder(
+                future: documentProvider.getPdfFiles(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final docList = snapshot.data as List<DocModel>;
+                    return Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: docList.length,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: DocumentCard(
+                            context: context,
+                            name: docList[index].name,
+                            size: docList[index].size,
+                            path: docList[index].path,
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
               ),
             ),
           ],
