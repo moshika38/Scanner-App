@@ -46,13 +46,15 @@ class UpgradeReminder {
               ),
               const SizedBox(height: 16),
               Text(
-                'You have reached your free scan limit (10 scans). Upgrade to premium for unlimited scanning!',
+                'You have reached your free scan limit (10 scans). Upgrade to premium for unlimited scanning!\n\n only \$4.99 per month',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.grey,
                       height: 1.5,
                     ),
               ),
+              SizedBox(height: 15),
+              Divider(),
               Text(
                 'OR',
                 textAlign: TextAlign.center,
