@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,8 +12,11 @@ enum ApiServicesMethodType {
 
 const baseUrl = "https://api.stripe.com/v1";
 
+String key = dotenv.env["STRIPE_SECRET_KEY"] ?? "";
+String key2 = Platform.environment['STRIPE_SECRET_KEY'] ?? "";
+final authKey = key != "" ? key : key2;
 final Map<String, String> requestHeaders = {
-  "Authorization": "Bearer ${dotenv.env["STRIPE_SECRET_KEY"]}",
+  "Authorization": "Bearer $authKey",
   "Content-Type": "application/x-www-form-urlencoded",
 };
 
