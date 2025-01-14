@@ -1,14 +1,25 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scanner/core/utils/colors.dart';
 import 'package:scanner/features/home/providers/document_provider.dart';
+import 'package:scanner/features/home/providers/scanning_user_provider.dart';
 import 'package:scanner/features/home/widget/action_btn.dart';
 import 'package:scanner/features/home/widget/document_card.dart';
 import 'package:scanner/features/home/widget/end_drawer.dart';
+import 'package:scanner/features/home/widget/upgrade_reminder.dart';
 import 'package:scanner/models/doc_model.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool? isPro;
+  int? scanCount;
 
   @override
   Widget build(BuildContext context) {
@@ -50,26 +61,79 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 30),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.brown,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ActionBtn(
-                          context: context,
-                          icon: Icons.camera_alt,
-                          label: 'Scan Now',
-                          onTap: () async {
-                            await context
-                                .read<DocumentProvider>()
-                                .scanDocument(context);
-                          },
-                        ),
-                      ],
+                  Consumer<ScanningUserProvider>(
+                    builder: (context, scanningUserProvider, child) =>
+                        FutureBuilder(
+                      future: scanningUserProvider.getUserDetails(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          final user = snapshot.data!;
+                          isPro = user.currentPlan == 'pro';
+                          scanCount = user.currentScanned;
+                          return Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.brown,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ActionBtn(
+                                  context: context,
+                                  icon: Icons.camera_alt,
+                                  label: 'Scan Now',
+                                  onTap: () async {
+                                    // scanning new document
+                                    if (isPro == false) {
+                                      bool isAvailable = await context
+                                          .read<ScanningUserProvider>()
+                                          .checkAndUpdateUserValidity();
+                                      if (!isAvailable) {
+                                        if (scanCount! >= 5) {
+                                          if (context.mounted) {
+                                            UpgradeReminder.show(context);
+                                          }
+                                        } else {
+                                          if (context.mounted) {
+                                            await context
+                                                .read<DocumentProvider>()
+                                                .scanDocument(context);
+                                            await context
+                                                .read<ScanningUserProvider>()
+                                                .updateCount();
+                                          }
+                                        }
+                                      } else {
+                                        if (context.mounted) {
+                                          await context
+                                              .read<DocumentProvider>()
+                                              .scanDocument(context);
+                                        }
+                                      }
+                                    } else {
+                                      if (context.mounted) {
+                                        await context
+                                            .read<DocumentProvider>()
+                                            .scanDocument(context);
+                                      }
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Container(
+                            height: 100,
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.brown,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -102,6 +166,17 @@ class HomeScreen extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final docList = snapshot.data as List<DocModel>;
+                    if (docList.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No documents found',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(color: Colors.grey),
+                        ),
+                      );
+                    }
                     return Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 24),

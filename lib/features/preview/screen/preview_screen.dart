@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:scanner/core/utils/colors.dart';
 
 class PreviewScreen extends StatelessWidget {
   final String pdfPath;
@@ -26,7 +28,28 @@ class PreviewScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Text("data"),
+      body: Column(
+        children: [
+          Expanded(
+            child: InteractiveViewer(
+              child: pdfPath != ""
+                  ? PDFView(
+                      filePath: pdfPath,
+                    )
+                  : const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 6,
+                          color: AppColors.brown,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

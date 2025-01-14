@@ -5,6 +5,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:scanner/core/utils/theme.dart';
 import 'package:scanner/features/home/providers/document_provider.dart';
+import 'package:scanner/features/home/providers/scanning_user_provider.dart';
 import 'package:scanner/features/home/screen/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:scanner/features/onBoarding/screen/on_boarding_screen.dart';
@@ -21,6 +22,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => DocumentProvider()),
+        ChangeNotifierProvider(create: (context) => ScanningUserProvider()),
       ],
       child: const MyApp(),
     ),

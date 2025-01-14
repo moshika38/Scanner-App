@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:scanner/core/utils/colors.dart';
+import 'package:scanner/features/home/providers/document_provider.dart';
 
 class AppBottomSheet {
-  static Future<bool?> delete(BuildContext context) {
+  static Future<bool?> delete(BuildContext context, String imagePath) {
     return showModalBottomSheet<bool>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -35,17 +37,22 @@ class AppBottomSheet {
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.red,
-                  ),
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text(
-                    'Delete',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                Consumer<DocumentProvider>(
+                  builder: (context, docServices, child) => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.red,
+                    ),
+                    onPressed: () {
+                      docServices.deletePdf(context, imagePath);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -58,7 +65,8 @@ class AppBottomSheet {
   }
 
   // rename document
-  static Future<String?> showRename(BuildContext context, String currentName) {
+  static Future<String?> showRename(
+      BuildContext context, String imagePath, String currentName) {
     final TextEditingController nameController =
         TextEditingController(text: currentName);
 
@@ -109,18 +117,29 @@ class AppBottomSheet {
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.brown,
-                    ),
-                    onPressed: () =>
-                        Navigator.pop(context, nameController.text),
-                    child: const Text(
-                      'Rename',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                  Consumer<DocumentProvider>(
+                    builder: (context, docServices, child) => ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brown,
+                      ),
+                      onPressed: () {
+                        if (nameController.text.isEmpty) {
+                          nameController.text = currentName;
+                        }
+                        if (!nameController.text.endsWith('.pdf')) {
+                          nameController.text += '.pdf';
+                        }
+                        docServices.renameFile(
+                            context, imagePath, nameController.text);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Rename',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),

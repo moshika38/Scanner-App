@@ -1,101 +1,171 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:scanner/core/utils/colors.dart';
 import 'package:scanner/features/auth/services/user_auth_services.dart';
+import 'package:scanner/features/home/providers/document_provider.dart';
+import 'package:scanner/features/home/providers/scanning_user_provider.dart';
+import 'package:scanner/features/home/services/path_services.dart';
 import 'package:scanner/features/home/widget/upgrade_reminder.dart';
+import 'package:scanner/models/user_model.dart';
 
-class EndDrawer extends StatelessWidget {
+class EndDrawer extends StatefulWidget {
   const EndDrawer({super.key});
+
+  @override
+  State<EndDrawer> createState() => _EndDrawerState();
+}
+
+class _EndDrawerState extends State<EndDrawer> {
+  String selectedFolderPath = "";
+  Future<void> selectFolder() async {
+    String? result = await FilePicker.platform.getDirectoryPath();
+    PathServices.saveLocation(result.toString());
+    setState(() {
+      context.read<DocumentProvider>().notify();
+      selectedFolderPath = result ?? "Failed to select folder";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.brown,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
+      child: Consumer<ScanningUserProvider>(
+        builder: (context, scanningUserProvider, child) => FutureBuilder(
+          future: scanningUserProvider.getUserDetails(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final user = snapshot.data as UserModel;
+              return Drawer(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 32, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.brown,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Scanner Menu',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 24),
+                          user.currentPlan == "free"
+                              ? _freeUserCard(context, user.currentScanned)
+                              : _premiumUserCard(context),
+                        ],
+                      ),
+                    ),
+                    user.currentPlan == "free"
+                        ? ListTile(
+                            leading: const Icon(Icons.upgrade),
+                            title: const Text('Upgrade to Premium'),
+                            subtitle: const Text('Unlimited scans & features'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              UpgradeReminder.show(context);
+                            },
+                          )
+                        : SizedBox.shrink(),
+                    ListTile(
+                      leading: const Icon(Icons.folder),
+                      title: const Text('Scanned Documents'),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    FutureBuilder(
+                      future: PathServices.getLocation(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          selectedFolderPath = snapshot.data as String;
+                          return ListTile(
+                            leading: const Icon(Icons.save),
+                            title: const Text('Storage Location'),
+                            subtitle: Text(
+                              selectedFolderPath,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                            onTap: () {
+                              selectFolder();
+                            },
+                          );
+                        } else {
+                          return ListTile(
+                            leading: const Icon(Icons.save),
+                            title: const Text('Storage Location'),
+                            subtitle: const Text('Loading ...'),
+                            onTap: () {
+                              selectFolder();
+                            },
+                          );
+                        }
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.help),
+                      title: const Text('Help & Support'),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.logout,
+                        color: Colors.red,
+                      ),
+                      title: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onTap: () {
+                        // Add logout logic here
+                        Navigator.pop(context);
+                        UserAuthServices().logout(context);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 6,
+                    color: AppColors.brown,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Scanner Menu', // Changed from 'Scanner\nMenu' to single line
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  _freeUserCard(context),
-                  // _premiumUserCard(context),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.upgrade),
-              title: const Text('Upgrade to Premium'),
-              subtitle: const Text('Unlimited scans & features'),
-              onTap: () {
-                Navigator.pop(context);
-                UpgradeReminder.show(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.folder),
-              title: const Text('Scanned Documents'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.save),
-              title: const Text('Storage Location'),
-              subtitle: const Text('Change where files are saved'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.help),
-              title: const Text('Help & Support'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(
-                Icons.logout,
-                color: Colors.red,
-              ),
-              title: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                // Add logout logic here
-                Navigator.pop(context);
-                UserAuthServices().logout(context);
-              },
-            ),
-          ],
+                ),
+              );
+            }
+          },
         ),
       ),
     );
   }
 
-  Widget _freeUserCard(BuildContext context) {
+  Widget _freeUserCard(BuildContext context, int value) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -132,13 +202,13 @@ class EndDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
-            value: 0.8, // 8/10
+            value: value / 5,
             backgroundColor: Colors.white24,
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.white70),
           ),
           const SizedBox(height: 8),
           Text(
-            '8/10 scans remaining',
+            '$value/5 scans remaining',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white70,
                 ),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:scanner/features/home/services/path_services.dart';
+import 'package:scanner/features/widgets/snack_bar.dart';
 import 'package:scanner/models/doc_model.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
@@ -23,13 +24,13 @@ class DocumentProvider extends ChangeNotifier {
 
         // Navigate to the preview page with the PDF path
         if (context.mounted) {
-          // CustomSnackBar.showSuccess(context, "Document scanned successfully");
+          CustomSnackBar.showSuccess(context, "Document scanned successfully");
         }
       }
       notifyListeners();
     } catch (e) {
       if (context.mounted) {
-        // CustomSnackBar.showError(context, "Error: $e");
+        CustomSnackBar.showError(context, "Error: $e");
       }
       notifyListeners();
     }
@@ -85,17 +86,17 @@ class DocumentProvider extends ChangeNotifier {
         final newFilePath = '$directory/$newName';
         await file.rename(newFilePath);
         if (context.mounted) {
-          // CustomSnackBar.showSuccess(context, "Document renamed successfully");
+          CustomSnackBar.showSuccess(context, "Document renamed successfully");
         }
       } else {
         if (context.mounted) {
-          // CustomSnackBar.showError(context, "Document not found");
+          CustomSnackBar.showError(context, "Document not found");
         }
       }
       notifyListeners();
     } catch (e) {
       if (context.mounted) {
-        // CustomSnackBar.showError(context, "Error renaming Document: $e");
+        CustomSnackBar.showError(context, "Error renaming Document: $e");
       }
       notifyListeners();
     }
@@ -134,19 +135,23 @@ class DocumentProvider extends ChangeNotifier {
         await file.delete();
 
         if (context.mounted) {
-          // CustomSnackBar.showSuccess(context, "Document deleted successfully");
+          CustomSnackBar.showSuccess(context, "Document deleted successfully");
         }
       } else {
         if (context.mounted) {
-          // CustomSnackBar.showError(context, "Document not found");
+          CustomSnackBar.showError(context, "Document not found");
         }
       }
       notifyListeners();
     } catch (e) {
       if (context.mounted) {
-        // CustomSnackBar.showError(context, "Error deleting Document: $e");
+        CustomSnackBar.showError(context, "Error deleting Document: $e");
       }
       notifyListeners();
     }
+  }
+
+  void notify() {
+    notifyListeners();
   }
 }

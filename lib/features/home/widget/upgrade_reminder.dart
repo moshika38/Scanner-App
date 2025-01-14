@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scanner/core/utils/colors.dart';
+import 'package:scanner/features/home/stripe/stripe.dart';
+import 'package:scanner/features/widgets/snack_bar.dart';
 
 class UpgradeReminder {
   static void show(BuildContext context) {
@@ -73,6 +76,16 @@ class UpgradeReminder {
                 child: ElevatedButton(
                   onPressed: () {
                     // Add premium upgrade logic here
+                    init(
+                      email:
+                          FirebaseAuth.instance.currentUser!.email.toString(),
+                      name: FirebaseAuth.instance.currentUser!.displayName ??
+                          "Guest",
+                      context: context,
+                    );
+                    Navigator.of(context).pop();
+                    CustomSnackBar.showSuccess(context,
+                        "Waiting for approval, Payment window will open in a few seconds");
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.brown,

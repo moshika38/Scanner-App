@@ -24,7 +24,7 @@ class DocumentCard extends StatelessWidget {
         AppPageRouteing.push(
           context,
           PreviewScreen(
-            pdfPath: '',
+            pdfPath: path,
           ),
         );
       },
@@ -126,14 +126,14 @@ class DocumentCard extends StatelessWidget {
                       switch (value) {
                         case 'rename':
                           // Add rename logic
-                          AppBottomSheet.showRename(context, "No name");
+                          AppBottomSheet.showRename(context, path, name);
                           break;
                         case 'share':
                           // Add share logic
                           break;
                         case 'delete':
                           // Add delete logic
-                          AppBottomSheet.delete(context);
+                          AppBottomSheet.delete(context, path);
                           break;
                       }
                     },
