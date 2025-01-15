@@ -59,12 +59,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 signInWithGoogle: () async {
                   isLoading = true;
                   setState(() {});
-                  if (isLoading == false) {
-                    await UserAuthServices().signInWithGoogle();
-                    context.mounted
-                        ? await UserAuthServices().createUser(context)
-                        : null;
-                  }
+
+                  await UserAuthServices().signInWithGoogle();
+                  context.mounted
+                      ? await UserAuthServices().createUser(context)
+                      : null;
+
                   isLoading = false;
                   setState(() {});
                 },
