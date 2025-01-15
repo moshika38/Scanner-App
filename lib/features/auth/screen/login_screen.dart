@@ -3,8 +3,15 @@ import 'package:scanner/core/utils/colors.dart';
 import 'package:scanner/features/auth/services/user_auth_services.dart';
 import 'package:scanner/features/auth/widget/login_btn.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +56,26 @@ class LoginScreen extends StatelessWidget {
 
               // Google Sign In Button
               LoginBtn(
-                signInWithGoogle: () {
-                  UserAuthServices().signInWithGoogle(context);
-                  // AppPageRouteing.pushReplacement(context, HomeScreen());
+                signInWithGoogle: () async {
+                  isLoading = true;
+                  setState(() {});
+                  if (isLoading == false) {
+                    await UserAuthServices().signInWithGoogle();
+                    context.mounted
+                        ? await UserAuthServices().createUser(context)
+                        : null;
+                  }
+                  isLoading = false;
+                  setState(() {});
                 },
               ),
+              const SizedBox(height: 20),
+              isLoading
+                  ? Text(
+                      'Loading...',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    )
+                  : SizedBox.shrink(),
             ],
           ),
         ),

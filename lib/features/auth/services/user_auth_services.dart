@@ -12,7 +12,7 @@ class UserAuthServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // google login
-  Future<UserCredential> signInWithGoogle(BuildContext context) async {
+  Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -25,18 +25,16 @@ class UserAuthServices {
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
-    if (FirebaseAuth.instance.currentUser != null) {
-      await createUser();
-      if (context.mounted) {
-        AppPageRouteing.pushReplacement(context, HomeScreen());
-      }
-    }
+
+    
+    
+
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   // create collection
-  Future<void> createUser() async {
+  Future<void> createUser(BuildContext context) async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
 
     // Check if user exists
@@ -51,6 +49,9 @@ class UserAuthServices {
         currentScanned: 0,
       );
       await _firestore.collection('users').doc(user.id).set(user.toJson());
+    }
+    if (context.mounted) {
+      AppPageRouteing.pushReplacement(context, HomeScreen());
     }
   }
 
