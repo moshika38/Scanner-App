@@ -40,7 +40,6 @@ class DocumentProvider extends ChangeNotifier {
   Future<String> _saveAsPdf(String imagePath) async {
     try {
       final pdf = pw.Document();
-
       final image = pw.MemoryImage(File(imagePath).readAsBytesSync());
       pdf.addPage(pw.Page(
         build: (pw.Context context) => pw.Center(
@@ -50,7 +49,9 @@ class DocumentProvider extends ChangeNotifier {
 
       final downloadsDir = await PathServices.getLocation();
       if (downloadsDir.isNotEmpty) {
-        final pdfPath = '$downloadsDir/${_documentScanner.id}.pdf';
+        // Generate unique filename using timestamp
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final pdfPath = '$downloadsDir/scan_$timestamp.pdf';
         final file = File(pdfPath);
 
         await file.writeAsBytes(await pdf.save());
@@ -108,11 +109,13 @@ class DocumentProvider extends ChangeNotifier {
     final List<DocModel> docList = [];
 
     if (await directory.exists()) {
-      final files = directory.listSync(recursive: true);
+      // Force refresh directory contents
+      final files = await directory.list(recursive: true).toList();
 
       for (var file in files) {
         if (file is File && file.path.endsWith('.pdf')) {
           final fileName = file.uri.pathSegments.last;
+          // Get fresh file information
           final fileSize = await file.length();
           final fileTime = await file.lastModified();
 
@@ -125,6 +128,8 @@ class DocumentProvider extends ChangeNotifier {
         }
       }
     }
+
+     notifyListeners();
     return docList.reversed.toList();
   }
 

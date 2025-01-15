@@ -22,9 +22,11 @@ class _EndDrawerState extends State<EndDrawer> {
     String? result = await FilePicker.platform.getDirectoryPath();
     PathServices.saveLocation(result.toString());
     setState(() {
-      context.read<DocumentProvider>().notify();
       selectedFolderPath = result ?? "Failed to select folder";
     });
+    if (mounted) {
+      context.read<DocumentProvider>().notify();
+    }
   }
 
   @override

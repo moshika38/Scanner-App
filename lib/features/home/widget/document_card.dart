@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:scanner/core/utils/colors.dart';
 import 'package:scanner/features/home/widget/bottom_sheet.dart';
 import 'package:scanner/features/preview/screen/preview_screen.dart';
@@ -9,12 +10,14 @@ class DocumentCard extends StatelessWidget {
   final String name;
   final String size;
   final String path;
+  final bool isShow;
   const DocumentCard({
     super.key,
     required this.context,
     required this.name,
     required this.size,
     required this.path,
+    required this.isShow,
   });
 
   @override
@@ -55,11 +58,15 @@ class DocumentCard extends StatelessWidget {
                       color: AppColors.brown.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.description_outlined,
-                      color: AppColors.brown,
-                      size: 30,
-                    ),
+                    child: !isShow
+                        ? Icon(
+                            Icons.description_outlined,
+                            color: AppColors.brown,
+                            size: 30,
+                          )
+                        : PDFView(
+                            filePath: path,
+                          ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(

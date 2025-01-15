@@ -80,6 +80,6 @@ class ScanningUserProvider extends ChangeNotifier {
         notifyListeners();
       }
     }
+    notifyListeners();
   }
- 
 }

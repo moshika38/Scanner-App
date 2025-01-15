@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scanner/core/utils/colors.dart';
@@ -20,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool? isPro;
   int? scanCount;
+
+  bool showPreview = false;
 
   @override
   Widget build(BuildContext context) {
@@ -148,10 +149,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             ?.copyWith(fontSize: 20),
                       ),
                       TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.sort, color: AppColors.brown),
-                        label: const Text(
-                          'Sort by',
+                        onPressed: () {
+                          if (isPro == true) {
+                            setState(() {
+                              showPreview = !showPreview;
+                            });
+                          } else {
+                            UpgradeReminder.show(context);
+                          }
+                        },
+                        icon: Icon(Icons.preview, color: AppColors.brown),
+                        label: Text(
+                          !showPreview ? 'Preview' : 'Hide',
                           style: TextStyle(color: AppColors.brown),
                         ),
                       ),
@@ -184,6 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, index) => Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: DocumentCard(
+                            isShow: showPreview,
                             context: context,
                             name: docList[index].name,
                             size: docList[index].size,

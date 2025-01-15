@@ -3,7 +3,7 @@ import 'package:scanner/features/home/providers/document_provider.dart';
 import 'package:scanner/features/home/providers/scanning_user_provider.dart';
 import 'package:scanner/features/home/stripe/api_services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:scanner/features/widgets/snack_bar.dart';
+// import 'package:scanner/features/widgets/snack_bar.dart';
 
 Future<void> init({
   required String name,
@@ -55,9 +55,16 @@ Future<void> init({
   } else {
     // successfully subscribed
     await ScanningUserProvider().updateUserPlan("pro");
+
     DocumentProvider().notify();
     if (context.mounted) {
-      CustomSnackBar.showSuccess(context, "Active subscription");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Active subscription"),
+        ),
+      );
+
+      Navigator.pop(context);
     }
   }
 }
